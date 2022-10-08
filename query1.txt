@@ -1,0 +1,39 @@
+create schema module_7_schema;
+
+--drop schema module_7_schema;
+
+DROP TABLE IF EXISTS module_7_schema.card_holder;
+DROP TABLE IF EXISTS module_7_schema.credit_card;
+DROP TABLE IF EXISTS module_7_schema.merchant_category;
+DROP TABLE IF EXISTS module_7_schema.merchant;
+DROP TABLE IF EXISTS module_7_schema.transaction;
+
+
+CREATE TABLE module_7_schema.card_holder (
+	id serial primary key,
+	name character varying (50) NOT NULL 
+);
+
+CREATE TABLE module_7_schema.credit_card (
+	card VARCHAR (20) NOT NULL, 
+	cardholder_id serial NOT NULL
+);
+
+CREATE TABLE module_7_schema.merchant_category (
+	id serial NOT NULL,
+	name VARCHAR (75) NOT NULL
+);
+
+CREATE TABLE module_7_schema.merchant (
+	id serial NOT NULL, 
+	name VARCHAR (100) NOT NULL,
+	id_merchant_category int NOT NULL 
+);
+
+CREATE TABLE module_7_schema.transaction (
+	id int NOT NULL, 
+	date TIMESTAMP NOT NULL,
+	amount float NOT NULL,
+	card VARCHAR(20) NOT NULL,
+	id_merchant int NOT NULL
+);
