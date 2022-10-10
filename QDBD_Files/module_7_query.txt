@@ -1,0 +1,47 @@
+--Title: pgAdmin Query's for Module 7 Challenge 
+
+---
+
+--Data Analysis Part 1:
+--1.) 
+
+
+SELECT * FROM module_7_schema.transaction
+
+--Data Analysis Part 1: Fraudulent Forensics Sorting Card Transactions <= $2.00
+SELECT * FROM module_7_schema.transaction
+WHERE transaction.amount <= 2
+ORDER BY card DESC
+
+--Count number of transactions less than <= $2, then group by card #, sort "Total Transactions <=$2.00" descending
+--*tested and works
+SELECT 
+	card,
+	COUNT(amount) AS "Total Transactions <= $2.00"
+FROM module_7_schema.transaction
+WHERE transaction.amount <=2
+GROUP BY transaction.card
+ORDER BY "Total Transactions <= $2.00" DESC
+
+-- Analyze individual suspected hacked credit cards
+SELECT *
+FROM module_7_schema.transaction
+WHERE transaction.card = '180098539019105' AND transaction.amount <=2
+ORDER BY amount ASC
+
+--Group by Merchant Data (id_merchant) from Transaction table by count of transactions <= $2.00
+--*tested and works
+SELECT 
+	id_merchant,
+	COUNT(amount) AS "Total Transactions <= $2.00"
+FROM module_7_schema.transaction
+WHERE transaction.amount <=2
+GROUP BY transaction.id_merchant HAVING COUNT(amount) > 5
+ORDER BY "Total Transactions <= $2.00" DESC
+
+--Sort transactions by time
+SELECT * FROM module_7_schema.transaction
+WHERE transaction.amount <= 2
+ORDER BY date DESC
+
+SELECT extract(hour from date) FROM module_7_schema.transaction

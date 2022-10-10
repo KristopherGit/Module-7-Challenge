@@ -2,38 +2,156 @@ create schema module_7_schema;
 
 --drop schema module_7_schema;
 
-DROP TABLE IF EXISTS module_7_schema.card_holder;
-DROP TABLE IF EXISTS module_7_schema.credit_card;
-DROP TABLE IF EXISTS module_7_schema.merchant_category;
-DROP TABLE IF EXISTS module_7_schema.merchant;
-DROP TABLE IF EXISTS module_7_schema.transaction;
+DROP TABLE IF EXISTS card_holder;
+DROP TABLE IF EXISTS credit_card;
+DROP TABLE IF EXISTS merchant_category;
+DROP TABLE IF EXISTS merchant;
+DROP TABLE IF EXISTS transaction;
 
 
-CREATE TABLE module_7_schema.card_holder (
-	id serial primary key,
-	name character varying (50) NOT NULL 
+CREATE TABLE card_holder (
+	id serial,
+	name character varying (50) NOT NULL, 
+	PRIMARY KEY (id)
 );
 
-CREATE TABLE module_7_schema.credit_card (
+CREATE TABLE credit_card (
 	card VARCHAR (20) NOT NULL, 
-	cardholder_id serial NOT NULL
+	cardholder_id serial NOT NULL,
+	PRIMARY KEY (card),
+	FOREIGN KEY (cardholder_id) REFERENCES card_holder (id)
 );
 
-CREATE TABLE module_7_schema.merchant_category (
+CREATE TABLE merchant_category (
 	id serial NOT NULL,
-	name VARCHAR (75) NOT NULL
+	name VARCHAR (75) NOT NULL,
+	PRIMARY KEY (id)
 );
 
-CREATE TABLE module_7_schema.merchant (
+CREATE TABLE merchant (
 	id serial NOT NULL, 
 	name VARCHAR (100) NOT NULL,
-	id_merchant_category int NOT NULL 
+	id_merchant_category int NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (id_merchant_category) REFERENCES merchant_category (id)
 );
 
-CREATE TABLE module_7_schema.transaction (
+CREATE TABLE transaction (
 	id int NOT NULL, 
 	date TIMESTAMP NOT NULL,
 	amount float NOT NULL,
 	card VARCHAR(20) NOT NULL,
-	id_merchant int NOT NULL
+	id_merchant int NOT NULL,
+	FOREIGN KEY (card) REFERENCES credit_card (card),
+	FOREIGN KEY (id_merchant) REFERENCES merchant (id)
 );
+
+
+SELECT * FROM module_7_schema.transaction
+
+--Data Analysis Part 1: Fraudulent Forensics Sorting Card Transactions <= $2.00
+--*tested and works
+SELECT * FROM module_7_schema.transaction
+WHERE transaction.amount <= 2
+ORDER BY id_merchant DESC
+
+--Sort transactions by time
+--*tested and works at 10/08/2022 @ 12:32 AM
+SELECT id, amount, date, card, id_merchant, extract(hour from date) as time
+FROM module_7_schema.transaction
+WHERE transaction.amount <= 2
+ORDER BY time DESC
+
+--Sort transactions by largest amount between 7am-9am
+--*test and works at 10/08/2022 @ 1:18 PM 
+SELECT id, amount, date, card, id_merchant, extract(hour from date) as time
+FROM module_7_schema.transaction
+--WHERE transaction.amount >=500
+ORDER BY amount DESC
+LIMIT 100
+
+--Count number of transactions less than <= $2, then group by card #, sort "Total Transactions <=$2.00" descending
+--*tested and works
+SELECT 
+	card,
+	COUNT(amount) AS "Total Transactions <= $2.00"
+FROM module_7_schema.transaction
+WHERE transaction.amount <=2
+GROUP BY transaction.card
+ORDER BY "Total Transactions <= $2.00" DESC
+
+-- Analyze individual suspected hacked credit cards UNDER $2.00 purchases only
+--*tested and works
+SELECT *
+FROM module_7_schema.transaction
+WHERE transaction.card = '344119623920892' AND transaction.amount <=2
+--GROUP BY transaction.id_merchant
+ORDER BY amount ASC
+
+--Group by Merchant Data (id_merchant) from Transaction table by count of transactions <= $2.00
+--*tested and works
+SELECT 
+	id_merchant,
+	COUNT(amount) AS "Total Transactions <= $2.00"
+FROM module_7_schema.transaction
+WHERE transaction.amount <=2
+GROUP BY transaction.id_merchant HAVING COUNT(amount) > 5
+ORDER BY "Total Transactions <= $2.00" DESC
+
+--Analyze individual id_merchant for patterns
+SELECT *
+FROM module_7_schema.transaction
+WHERE transaction.id_merchant = '145' AND transaction.amount <=2
+ORDER BY card ASC
+
+--Merchant_id to Merchant Name Translator
+SELECT * FROM module_7_schema.merchant
+
+--Sort by transaction id; filter by occurence of purchase
+SELECT *
+FROM module_7_schema.transaction
+ORDER id ASC
+LIMIT 100
+
+
+
+--Check spending habits of specific credit cards
+--possible cardholder_id= 18 hack (from module question)
+--*4498002758300 shows PROMISING signs of potentially being hacked due to double spending in the same day
+SELECT *
+FROM module_7_schema.transaction
+WHERE transaction.card = '4498002758300'
+--GROUP BY transaction.id_merchant
+ORDER BY date ASC
+
+
+--Query by 100 Largest Transactions Made Betwen 7:00 am and 9:00 independent of date
+--tested and works as of 10/08/2022 2:59 PM 
+SELECT id, amount, date, card, id_merchant
+FROM module_7_schema.transaction
+WHERE date::time BETWEEN time '7:00' and time '9:00'
+ORDER BY amount DESC
+LIMIT 100
+
+SELECT id, date, card, id_merchant
+FROM module_7_schema.transaction
+WHERE date::time BETWEEN time '7:00' and time '9:00'
+GROUP BY card sum(amount)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

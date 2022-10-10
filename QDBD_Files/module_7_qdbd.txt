@@ -1,0 +1,28 @@
+Card_Holder
+-
+id serial PK
+name VARCHAR(50)
+
+Credit_Card
+-
+card VARCHAR(20) PK
+cardholder_id int FK >- Card_Holder.id
+
+Merchant
+- 
+id int PK
+name VARCHAR(100)
+id_merchant_category int FK >- Merchant_Category.id
+
+Merchant_Category
+- 
+id int PK
+name VARCHAR(75)
+
+Transaction
+-
+id int
+date timestamp
+amount float
+card VARCHAR(20) FK >- Credit_Card.card
+id_merchant int FK >- Merchant.id
