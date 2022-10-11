@@ -187,6 +187,35 @@ JOIN merchant as m
 JOIN merchant_category as mc
 	ON m.id_merchant_category = mc.id
 
+*****
+
+Updated Final Query for All Table Joins - 10/11/2022 6:09 PM EST
+
+--All Joins Base Table
+--verified worked on 10/11/2022 6:09PM
+SELECT ch.id,
+	ch.name,
+	cc.cardholder_id,
+	cc.card,
+	t.amount,
+	t.date,
+	t.id_merchant,
+	m.name,
+	m.id_merchant_category,
+	mc.name
+FROM card_holder as ch
+JOIN credit_card as cc
+	ON ch.id = cc.cardholder_id
+JOIN transaction as t
+	ON cc.card = t.card
+JOIN merchant as m
+	ON t.id_merchant = m.id
+JOIN merchant_category as mc
+	ON m.id_merchant_category = mc.id
+
+WHERE date BETWEEN  '2018-01-01' and '2018-06-30' 
+AND cc.cardholder_id = '25'
+
 
 
 
