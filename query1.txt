@@ -142,11 +142,50 @@ GROUP BY card sum(amount)
 
 
 
+******
+
+--All Joins Base Table
+--verified worked on 10/10/2022 10:04PM
+SELECT ch.id,
+	ch.name,
+	cc.cardholder_id,
+	cc.card,
+	t.amount,
+	t.date,
+	t.id_merchant
+
+FROM card_holder as ch
+
+JOIN credit_card as cc
+	ON ch.id = cc.cardholder_id
+JOIN transaction as t
+	ON cc.card = t.card
 
 
 
-
-
+**********
+-- All Join Base Table [Updated for all tables] UPDATED AT 10/10/2022 10:48 PM 
+--All Joins Base Table
+--verified worked on 10/10/2022 10:04PM
+SELECT ch.id,
+	ch.name,
+	cc.cardholder_id,
+	cc.card,
+	t.amount,
+	t.date,
+	t.id_merchant,
+	m.name,
+	m.id_merchant_category,
+	mc.name
+FROM card_holder as ch
+JOIN credit_card as cc
+	ON ch.id = cc.cardholder_id
+JOIN transaction as t
+	ON cc.card = t.card
+JOIN merchant as m
+	ON t.id_merchant = m.id
+JOIN merchant_category as mc
+	ON m.id_merchant_category = mc.id
 
 
 
